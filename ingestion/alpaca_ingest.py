@@ -47,6 +47,7 @@ import config  # noqa: E402
 from ingestion import data_store  # noqa: E402
 
 try:
+    from alpaca.data.enums import DataFeed
     from alpaca.data.historical import StockHistoricalDataClient
     from alpaca.data.requests import StockBarsRequest
     from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
@@ -70,6 +71,7 @@ def fetch_ticker(client: StockHistoricalDataClient, ticker: str, start, end):
         timeframe=TimeFrame(1, TimeFrameUnit.Hour),
         start=start,
         end=end,
+        feed=DataFeed.IEX,
     )
     bars = client.get_stock_bars(request)
     df = bars.df  # MultiIndex (symbol, timestamp) DataFrame
@@ -95,7 +97,7 @@ def main() -> None:
 
     client = StockHistoricalDataClient(api_key, secret_key)
 
-    end = datetime.now(timezone.utc)
+    end = datetime.now(timezone.utc) - timedelta(minutes=20)
     start = end - timedelta(days=int(365 * YEARS_OF_HISTORY))
 
     # Hourly bars -> config.py's windows need to be scaled accordingly.
