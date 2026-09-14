@@ -123,7 +123,7 @@ def _debounce(qualified: pd.Series, cooldown: int) -> pd.Series:
     return fresh
 
 
-def generate_signals(df: pd.DataFrame, warmup: int | None = None, cooldown: int = 20) -> pd.DataFrame:
+def generate_signals(df: pd.DataFrame, warmup: int | None = None, cooldown: int | None = None) -> pd.DataFrame:
     """
     Adds bull_score, bear_score, and "fresh signal" flags (bull_signal /
     bear_signal) to a single ticker's feature DataFrame.
@@ -151,6 +151,8 @@ def generate_signals(df: pd.DataFrame, warmup: int | None = None, cooldown: int 
     bull_qualified.iloc[:warmup] = False
     bear_qualified.iloc[:warmup] = False
 
+    if cooldown is None:
+        cooldown = 20 * config.BARS_PER_DAY
     out["bull_signal"] = _debounce(bull_qualified, cooldown)
     out["bear_signal"] = _debounce(bear_qualified, cooldown)
 
