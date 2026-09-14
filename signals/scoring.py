@@ -19,13 +19,23 @@ import pandas as pd
 import config
 
 
-def attach_rs_percentile(features_by_ticker: dict[str, pd.DataFrame], rs_col: str = "rs_return_126d") -> None:
+def attach_rs_percentile(features_by_ticker: dict[str, pd.DataFrame], rs_col: str | None = None) -> None:
     """
     Mutates each DataFrame in-place, adding `rs_percentile` = this ticker's
     cross-sectional percentile rank of `rs_col` among all tickers in the
     universe, computed independently at each timestamp (no look-ahead:
     only tickers/timestamps already present are used).
+
+    rs_col: which of features.py's rs_return_{w}d columns to rank on.
+        Defaults to the ~6-month window (the middle entry of
+        config.RS_WINDOWS). Computed here, not hardcoded as
+        "rs_return_126d", because that column name scales with
+        config.BARS_PER_DAY (126 for daily bars, 882 for hourly at 7
+        bars/day) — a hardcoded default only worked on daily data.
     """
+    if rs_col is None:
+        rs_col = f"rs_return_{config.RS_WINDOWS[1]}d"
+
     # Align on timestamp across all tickers, rank cross-sectionally per row.
     combined = pd.concat(
         {t: df.set_index("timestamp")[rs_col] for t, df in features_by_ticker.items()},
