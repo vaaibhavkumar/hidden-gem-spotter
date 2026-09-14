@@ -33,6 +33,74 @@ VALIDATION_UNIVERSE = {
 
 BENCHMARK = "SPY"
 
+# --- Calibration universe (broader, non-cherry-picked, for RS-percentile
+# ranking and Wilson-CI calibration -- NOT for the false-positive-rate check,
+# which is what VALIDATION_UNIVERSE above is for) ---
+#
+# VALIDATION_UNIVERSE was deliberately hand-picked with hindsight (known
+# risers/fallers/normals), which is exactly right for testing "does the
+# screen correctly separate stocks that moved a lot from stocks that
+# didn't" -- but wrong for two other jobs that need an unselected sample:
+#
+# 1. RS-percentile ranking (signals/scoring.attach_rs_percentile) is only
+#    correct across whatever tickers you feed it.
+# 2. evaluation.backtest.calibrate_confidence()'s own docstring warns
+#    against feeding it "just the 15-name validation set, which is too
+#    small to bucket reliably" -- confirmed by the first real run: a
+#    single bucket per direction, CIs 15+ points wide.
+#
+# CAVEAT -- this is an APPROXIMATION, not the real fix: these are today's
+# large/mid-cap constituents, not the S&P 500's membership *as of* each
+# historical date this project's price history covers. A real
+# point-in-time constituents dataset is the correct long-term fix and is
+# still an open item -- this list exists to get calibration off "15
+# tickers" today, not to close that gap.
+#
+# A stratified sample (a handful per GICS sector) rather than the full
+# ~500 names, so ingestion stays a couple minutes instead of an hour.
+# Deliberately excludes every ticker already in VALIDATION_UNIVERSE --
+# see all_tickers()'s assertion.
+CALIBRATION_UNIVERSE = [
+    # Information Technology
+    "MSFT", "AAPL", "ORCL", "ADBE",
+    # Financials
+    "JPM", "BAC", "GS", "AXP",
+    # Health Care
+    "UNH", "PFE", "ABBV", "TMO",
+    # Consumer Discretionary
+    "MCD", "NKE", "SBUX", "LOW",
+    # Consumer Staples
+    "PEP", "WMT", "COST", "CL",
+    # Industrials
+    "CAT", "HON", "UPS", "RTX",
+    # Energy
+    "XOM", "CVX", "COP",
+    # Utilities
+    "DUK", "SO", "NEE",
+    # Materials
+    "LIN", "APD", "ECL",
+    # Real Estate
+    "PLD", "AMT", "SPG",
+    # Communication Services
+    "GOOGL", "META", "DIS", "VZ",
+]
+
+
+def all_tickers() -> list[str]:
+    """
+    Every ticker this project pulls price data for: VALIDATION_UNIVERSE
+    (known risers/fallers/normals, for the false-positive-rate check)
+    plus CALIBRATION_UNIVERSE (for RS-percentile ranking and confidence
+    calibration) above.
+    """
+    validation = list(VALIDATION_UNIVERSE.keys())
+    overlap = set(validation) & set(CALIBRATION_UNIVERSE)
+    assert not overlap, (
+        f"{overlap} appear in both VALIDATION_UNIVERSE and CALIBRATION_UNIVERSE -- "
+        "a ticker in both would be double-counted in calibration."
+    )
+    return validation + CALIBRATION_UNIVERSE
+
 # --- Bar frequency ---
 # alpaca_ingest.py currently pulls HOURLY bars (matching the original "track
 # hourly" goal), but every window below is defined in TRADING DAYS and then

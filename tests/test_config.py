@@ -45,3 +45,17 @@ def test_validation_universe_has_five_of_each_role():
     assert roles.count("riser") == 5
     assert roles.count("faller") == 5
     assert roles.count("normal") == 5
+
+def test_calibration_universe_does_not_overlap_validation_universe():
+    overlap = set(config.VALIDATION_UNIVERSE.keys()) & set(config.CALIBRATION_UNIVERSE)
+    assert overlap == set()
+
+
+def test_calibration_universe_has_no_duplicate_tickers():
+    assert len(config.CALIBRATION_UNIVERSE) == len(set(config.CALIBRATION_UNIVERSE))
+
+
+def test_all_tickers_is_the_union_of_both_universes():
+    combined = config.all_tickers()
+    assert set(combined) == set(config.VALIDATION_UNIVERSE.keys()) | set(config.CALIBRATION_UNIVERSE)
+    assert len(combined) == len(config.VALIDATION_UNIVERSE) + len(config.CALIBRATION_UNIVERSE)

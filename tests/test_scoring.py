@@ -132,3 +132,60 @@ def test_generate_signals_respects_an_explicit_warmup_override():
     out = scoring.generate_signals(df, warmup=10, cooldown=5)
     assert not out["bull_signal"].iloc[:10].any()
     assert bool(out["bull_signal"].iloc[10]) is True
+
+def test_attach_rs_percentile_default_column_scales_with_bars_per_day():
+    # Regression test: attach_rs_percentile's default rs_col used to be
+    # hardcoded as "rs_return_126d", which only ever matched features.py's
+    # actual column name on daily bars (BARS_PER_DAY=1). Against real
+    # hourly data (BARS_PER_DAY=7, so the ~6-month column is really named
+    # "rs_return_882d"), that hardcoded default raised
+    # KeyError('rs_return_126d') the first time this ran on real data.
+    config.set_bars_per_day(7)
+    assert config.RS_WINDOWS[1] == 882
+
+    ts = pd.date_range("2024-01-01", periods=5, freq="h")
+    a = pd.DataFrame({"timestamp": ts, "rs_return_882d": [0.1, 0.2, 0.3, 0.4, 0.5]})
+    b = pd.DataFrame({"timestamp": ts, "rs_return_882d": [0.5, 0.4, 0.3, 0.2, 0.1]})
+    features_by_ticker = {"A": a, "B": b}
+
+    scoring.attach_rs_percentile(features_by_ticker)  # must not raise KeyError
+
+    assert "rs_percentile" in a.columns and "rs_percentile" in b.columns
+
+
+def test_generate_signals_default_cooldown_scales_with_bars_per_day():
+    # Regression test: generate_signals()'s default cooldown used to be a
+    # bare 20 (bars) -- a real month on daily data but only ~3 days on
+    # hourly data (20 hourly bars at 7/day), so debounce wasn't actually
+    # suppressing chatter at hourly granularity. The first real backtest
+    # against hourly Alpaca data fired 5-7x more "fresh" signals per
+    # ticker than the daily-bar synthetic smoke test ever showed because
+    # of this. Default must now be 20 * config.BARS_PER_DAY.
+    config.set_bars_per_day(7)
+    try:
+        n = config.LOOKBACK_52W + config.SMA_LONG + 60
+        df = pd.DataFrame(
+            {
+                "trend_template_bull": [True] * n,
+                "trend_template_bear": [False] * n,
+                "rs_percentile": [0.9] * n,
+                "volume_z": [2.0] * n,
+                "vol_contraction_ratio": [0.5] * n,
+                "new_52w_high": [True] * n,
+                "roc_acceleration": [0.01] * n,
+                "close": np.linspace(100, 200, n),
+            }
+        )
+        # Two qualifying rising edges 30 bars apart: more than the old bare
+        # cooldown=20 (so the bug would let both re-fire as "fresh"), but
+        # well inside the correctly-scaled default of 20*BARS_PER_DAY=140
+        # bars (so the fix must collapse them into a single fresh signal).
+        warmup = config.LOOKBACK_52W + config.SMA_LONG
+        gap_start, gap_end = warmup, warmup + 30
+        df["trend_template_bull"] = (
+            [True] * gap_start + [False] * (gap_end - gap_start) + [True] * (n - gap_end)
+        )
+        out = scoring.generate_signals(df)  # cooldown left as default
+        assert int(out["bull_signal"].sum()) == 1
+    finally:
+        config.set_bars_per_day(1)

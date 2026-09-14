@@ -73,8 +73,13 @@ def main() -> None:
         )
         config.set_bars_per_day(detected)
 
-    series = {t: load_ticker(t) for t in config.VALIDATION_UNIVERSE}
+    # Validation tickers keep their known riser/faller/normal label; the
+    # broader calibration tickers have no such label (that's the point --
+    # they're an unselected sample) and are excluded from the by-role
+    # false-positive summary below, but included everywhere else.
     roles = {t: meta["role"] for t, meta in config.VALIDATION_UNIVERSE.items()}
+    universe = config.all_tickers()
+    series = {t: load_ticker(t) for t in universe}
 
     # Align every ticker's frame to the benchmark's timestamps (inner join)
     # so the cross-sectional RS-percentile ranking in scoring.py compares
@@ -86,21 +91,28 @@ def main() -> None:
         aligned[t]["_bench_close"] = merged["close_bench"].reset_index(drop=True)
 
     feats = {t: features.compute_features(df, df["_bench_close"]) for t, df in aligned.items()}
+    # Ranked across the FULL universe (validation + calibration), not just
+    # the 15 hand-picked names.
     scoring.attach_rs_percentile(feats)
 
     signaled = {t: scoring.generate_signals(df) for t, df in feats.items()}
 
-    print("=== Fresh signal counts by ticker ===")
+    print(f"=== Fresh signal counts ({len(roles)} validation tickers; "
+          f"{len(universe) - len(roles)} calibration-only tickers omitted from this table) ===")
     for t, df in signaled.items():
+        data_store.log_signals(t, df)  # persist to data/market.duckdb's `signals` table
+        if t not in roles:
+            continue
         role = roles[t]
         print(
             f"{t:6s} ({role:6s}) bull_signals={int(df['bull_signal'].sum()):3d}  "
             f"bear_signals={int(df['bear_signal'].sum()):3d}"
         )
-        data_store.log_signals(t, df)  # persist to data/market.duckdb's `signals` table
 
-    print("\n=== Signal dates (first 5 of each type per ticker) ===")
+    print("\n=== Signal dates (first 5 of each type per validation ticker) ===")
     for t, df in signaled.items():
+        if t not in roles:
+            continue
         bulls = df.loc[df["bull_signal"], ["timestamp", "close"]].head(5)
         bears = df.loc[df["bear_signal"], ["timestamp", "close"]].head(5)
         if not bulls.empty:
@@ -108,20 +120,25 @@ def main() -> None:
         if not bears.empty:
             print(f"{t} SELL signals:\n{bears.to_string(index=False)}")
 
-    print("\n=== Backtest summary by role (this is the false-positive-rate check) ===")
     horizon = 5 * config.BARS_PER_DAY  # ~5 trading days ahead, in whatever bar size the data uses
     results = {t: backtest.evaluate_signals(df, horizon=horizon) for t, df in signaled.items()}
-    summary = backtest.summarize_universe(results, roles)
+
+    print("\n=== Backtest summary by role (this is the false-positive-rate check -- ")
+    print("    validation tickers only) ===")
+    validation_results = {t: r for t, r in results.items() if t in roles}
+    summary = backtest.summarize_universe(validation_results, roles)
     print(summary.to_string(index=False) if not summary.empty else "(no signals to evaluate)")
 
-    print("\n=== Calibrated confidence by score bucket (still thin with just 15 tickers — ")
-    print("    treat as a first look, not a trustworthy calibration; see recommend.py) ===")
+    print(f"\n=== Calibrated confidence by score bucket (validation + calibration tickers, "
+          f"{len(universe)} total) ===")
     all_results = pd.concat([r for r in results.values() if not r.empty], ignore_index=True) if any(len(r) for r in results.values()) else pd.DataFrame()
     calibration = backtest.calibrate_confidence(all_results) if not all_results.empty else pd.DataFrame()
     print(calibration.to_string(index=False) if not calibration.empty else "(not enough signals to calibrate)")
 
-    print("\n=== Most recent recommendation per ticker (Action / Score / Confidence / Reasoning) ===")
+    print("\n=== Most recent recommendation per validation ticker (Action / Score / Confidence / Reasoning) ===")
     for t, df in signaled.items():
+        if t not in roles:
+            continue
         latest = df.iloc[-1]
         rec = recommend.recommend(latest, ticker=t, calibration_table=calibration)
         print(rec)

@@ -103,7 +103,11 @@ def main() -> None:
     # Hourly bars -> config.py's windows need to be scaled accordingly.
     config.set_bars_per_day(7)
 
-    tickers = list(config.VALIDATION_UNIVERSE.keys()) + [config.BENCHMARK]
+    # all_tickers() = the 15-name validation set + the broader calibration
+    # set (config.py's CALIBRATION_UNIVERSE) needed for RS-percentile
+    # ranking and confidence calibration -- see that module for why a
+    # single hand-picked list can't serve both jobs.
+    tickers = config.all_tickers() + [config.BENCHMARK]
     for ticker in tickers:
         print(f"Fetching {ticker}...", end=" ", flush=True)
         try:
