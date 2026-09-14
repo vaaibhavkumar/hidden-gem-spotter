@@ -85,6 +85,54 @@ trusting it:
    near enough to calibrate reliably on its own (see `demo.py`'s output
    for what that thin-sample warning looks like in practice).
 
+## What we borrowed from an alternative (Gemini) design, and what we didn't
+
+You also ran this idea past Gemini, which came back with a similarly-shaped
+multi-factor system. Worth stealing some of it rather than reinventing:
+
+**Adopted:**
+- The output schema — Action (STRONG BUY..STRONG SELL) + a 0-100 composite
+  + confidence + reasoning bullets — is a cleaner deliverable than raw
+  condition counts. `recommend.py` implements this.
+- Weighted percentile-rank pillars (35/30/20/15 for
+  technical/fundamental/revision/alternative) instead of a flat 0-6
+  condition count — more standard and comparable across factors of
+  different scales. Used as `recommend.PILLAR_WEIGHTS`.
+- "Earnings Quality Drift" (cash-flow growth leading net-income growth —
+  the classic Sloan-1996 accruals anomaly) is a legitimate, well-studied
+  fundamental signal we hadn't listed; worth adding to section 2C's
+  fundamental overlay once that pillar is built.
+- The sequential-gate framing (fundamental gate -> technical gate ->
+  alternative gate -> shortlist) is a reasonable alternative architecture
+  to a pure weighted composite — cheap/high-confidence filters (basic
+  quality, liquidity) could eliminate names before scoring the survivors,
+  which is more efficient at 500-name scale. Worth revisiting once the
+  fundamental pillar exists.
+
+**Deliberately not adopted:**
+- **Its "confidence interval" isn't one.** It's `100 - 1.5*std_dev` across
+  four sub-scores — that measures how much your own pillars agree with
+  each other, not whether signals like this one actually worked
+  historically. Presented as "86.2% (80.2%-92.2%)" it reads as far more
+  rigorous than it is (false precision). `recommend.py` instead reports
+  confidence only when a real backtest-calibrated Wilson interval is
+  available (`backtest.calibrate_confidence`), and says "uncalibrated"
+  otherwise rather than inventing a number.
+- **Heavy alt-data scraping (Reddit/WSB via `praw`, Glassdoor) is
+  deprioritized for now.** WSB sentiment is noisy and more relevant to
+  small/meme caps than S&P 500 mega-caps; Glassdoor scraping raises ToS
+  questions and moves too slowly (quarterly-ish) to matter for "early
+  stage." Matches this project's phased build order (README/proposal
+  section 3.7): validate technical, then fundamentals, then alt-data —
+  not all four gates on day one.
+- **`yfinance`/`.info` fields as the fundamental data source.** Its
+  `returnOnEquity` is being used as an ROIC proxy, which conflates two
+  meaningfully different metrics (ROE is levered/buyback-sensitive; ROIC
+  is capital-structure-neutral) — real ROIC needs NOPAT/invested capital
+  from the actual financial statements (SEC EDGAR/XBRL), not a shortcut.
+  Also, Yahoo's endpoints are blocked from this cloud workspace anyway
+  (see "Why real data isn't wired up yet" above).
+
 ## Keeping git history in sync (no more manual zips)
 
 Early on, the only way to get code changes onto your machine was a full
