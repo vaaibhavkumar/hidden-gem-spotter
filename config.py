@@ -80,6 +80,7 @@ THRESHOLDS = {
     "distance_from_high_bull_max": -0.25,  # within 25% of the 52-week high
     "distance_from_low_bear_max": 0.25,    # within 25% of the 52-week low
     "volume_z_confirm": 1.0,       # volume at least ~1 std above its trailing average
-    "vol_contraction_max": 0.85,   # current vol / baseline vol below this = "contracting"
+    "vol_contraction_max": 0.85,   # current vol / baseline vol below this = "contracting" (bullish VCP)
+    "vol_expansion_min": 1.15,     # current vol / baseline vol above this = "expanding" (bearish distribution)
     "signal_score_min": 3,         # minimum number of independent conditions that must fire
 }

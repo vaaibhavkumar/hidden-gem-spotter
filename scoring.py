@@ -36,40 +36,61 @@ def attach_rs_percentile(features_by_ticker: dict[str, pd.DataFrame], rs_col: st
         df["rs_percentile"] = df["timestamp"].map(pct_rank[t])
 
 
+#: human-readable label for each condition, used both to build the score
+#: and to explain *why* a signal fired (see recommend.py's reasoning bullets).
+BULLISH_CONDITION_LABELS = {
+    "trend_template": "Trend template intact (price > 50/150/200-period MAs, MAs stacked bullishly, 200 rising)",
+    "rs_top": "Relative strength vs. benchmark in the top {pct:.0f}% of the universe",
+    "volume_confirm": "Volume confirming the move (>{z:.1f} std above trailing average)",
+    "vol_contraction": "Volatility was contracting before this move (VCP-style setup)",
+    "new_high": "First new 52-week high after a base",
+    "roc_accel": "Rate of price change is accelerating",
+}
+BEARISH_CONDITION_LABELS = {
+    "trend_template": "Trend template broken (price < 50/150/200-period MAs, MAs stacked bearishly, 200 falling)",
+    "rs_bottom": "Relative strength vs. benchmark in the bottom {pct:.0f}% of the universe",
+    "volume_confirm": "Volume confirming the move (>{z:.1f} std above trailing average — a distribution day)",
+    "vol_expansion": "Volatility is expanding into widening swings (distribution-style top)",
+    "new_low": "First new 52-week low after a topping process",
+    "roc_decel": "Rate of price decline is accelerating",
+}
+
+
+def bullish_conditions(row: pd.Series) -> dict[str, bool]:
+    """Each independent bullish condition (section 2E composite), named so
+    callers (scoring here, recommend.py's reasoning) don't duplicate logic."""
+    return {
+        "trend_template": bool(row.get("trend_template_bull", False)),
+        "rs_top": row.get("rs_percentile", np.nan) >= config.THRESHOLDS["rs_percentile_bull"],
+        "volume_confirm": row.get("volume_z", np.nan) >= config.THRESHOLDS["volume_z_confirm"],
+        "vol_contraction": row.get("vol_contraction_ratio", np.nan) <= config.THRESHOLDS["vol_contraction_max"],
+        "new_high": bool(row.get("new_52w_high", False)),
+        "roc_accel": row.get("roc_acceleration", np.nan) > 0,
+    }
+
+
+def bearish_conditions(row: pd.Series) -> dict[str, bool]:
+    """Each independent bearish condition (section 2F mirror)."""
+    return {
+        "trend_template": bool(row.get("trend_template_bear", False)),
+        "rs_bottom": row.get("rs_percentile", np.nan) <= config.THRESHOLDS["rs_percentile_bear"],
+        # High volume on a down move is a distribution day either way we score it —
+        # direction is disambiguated by trend_template/new_52w_low.
+        "volume_confirm": row.get("volume_z", np.nan) >= config.THRESHOLDS["volume_z_confirm"],
+        "vol_expansion": row.get("vol_contraction_ratio", np.nan) >= config.THRESHOLDS["vol_expansion_min"],
+        "new_low": bool(row.get("new_52w_low", False)),
+        "roc_decel": row.get("roc_acceleration", np.nan) < 0,
+    }
+
+
 def bullish_score(row: pd.Series) -> int:
     """Count of independent bullish conditions firing (section 2E composite)."""
-    score = 0
-    if bool(row.get("trend_template_bull", False)):
-        score += 1
-    if row.get("rs_percentile", np.nan) >= config.THRESHOLDS["rs_percentile_bull"]:
-        score += 1
-    if row.get("volume_z", np.nan) >= config.THRESHOLDS["volume_z_confirm"]:
-        score += 1
-    if row.get("vol_contraction_ratio", np.nan) <= config.THRESHOLDS["vol_contraction_max"]:
-        score += 1
-    if bool(row.get("new_52w_high", False)):
-        score += 1
-    if row.get("roc_acceleration", np.nan) > 0:
-        score += 1
-    return score
+    return sum(bool(v) for v in bullish_conditions(row).values())
 
 
 def bearish_score(row: pd.Series) -> int:
     """Count of independent bearish conditions firing (section 2F mirror)."""
-    score = 0
-    if bool(row.get("trend_template_bear", False)):
-        score += 1
-    if row.get("rs_percentile", np.nan) <= config.THRESHOLDS["rs_percentile_bear"]:
-        score += 1
-    if row.get("volume_z", np.nan) >= config.THRESHOLDS["volume_z_confirm"]:
-        # High volume on a down move is a distribution day either way we score it —
-        # direction is disambiguated by trend_template_bear / new_52w_low.
-        score += 1
-    if bool(row.get("new_52w_low", False)):
-        score += 1
-    if row.get("roc_acceleration", np.nan) < 0:
-        score += 1
-    return score
+    return sum(bool(v) for v in bearish_conditions(row).values())
 
 
 def _debounce(qualified: pd.Series, cooldown: int) -> pd.Series:

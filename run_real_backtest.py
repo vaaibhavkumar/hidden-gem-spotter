@@ -1,13 +1,12 @@
 """
-Same pipeline as demo.py, but reading real OHLCV data from ./data/*.csv
-(produced by data_sources/alpaca_ingest.py) instead of synthetic series.
+Same pipeline as demo.py, but reading real OHLCV data (produced by
+data_sources/alpaca_ingest.py) instead of synthetic series.
 
 Run: python3 run_real_backtest.py
 
-Expects:
-    data/SPY.csv                 (benchmark)
-    data/<TICKER>.csv             for every ticker in config.VALIDATION_UNIVERSE
-each with columns [timestamp, open, high, low, close, volume].
+Reads from data/market.duckdb (see data_store.py) if present — this is
+the path alpaca_ingest.py now writes to. Falls back to data/<TICKER>.csv
+for backward compatibility with the very first prototype run.
 """
 from __future__ import annotations
 
@@ -17,26 +16,33 @@ import pandas as pd
 
 import backtest
 import config
+import data_store
 import features
+import recommend
 import scoring
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
 
 def load_ticker(ticker: str) -> pd.DataFrame:
-    path = DATA_DIR / f"{ticker}.csv"
-    if not path.exists():
-        raise FileNotFoundError(
-            f"{path} not found — run data_sources/alpaca_ingest.py (on a machine with "
-            "internet access) and bring its data/ folder here first."
-        )
-    df = pd.read_csv(path, parse_dates=["timestamp"])
-    return df.sort_values("timestamp").reset_index(drop=True)
+    df = data_store.load_bars(ticker)
+    if not df.empty:
+        return df.sort_values("timestamp").reset_index(drop=True)
+
+    csv_path = DATA_DIR / f"{ticker}.csv"
+    if csv_path.exists():
+        return pd.read_csv(csv_path, parse_dates=["timestamp"]).sort_values("timestamp").reset_index(drop=True)
+
+    raise FileNotFoundError(
+        f"No data for {ticker} in {data_store.DB_PATH} or {csv_path} — run "
+        "data_sources/alpaca_ingest.py (on a machine with internet access) "
+        "and bring its data/ folder here first."
+    )
 
 
 def detect_bars_per_day(df: pd.DataFrame) -> int:
     """
-    Infers whether this CSV holds daily or (regular-session) hourly bars
+    Infers whether this data holds daily or (regular-session) hourly bars
     from the median gap between consecutive timestamps, and returns the
     BARS_PER_DAY value config.py's window sizes should use. This exists so
     a daily-vs-hourly mismatch (see config.py's BARS_PER_DAY comment)
@@ -60,7 +66,7 @@ def main() -> None:
     detected = detect_bars_per_day(benchmark)
     if detected != config.BARS_PER_DAY:
         print(
-            f"Detected {'daily' if detected == 1 else 'hourly'} bars from data/{config.BENCHMARK}.csv "
+            f"Detected {'daily' if detected == 1 else 'hourly'} bars from {config.BENCHMARK}'s "
             f"timestamps — calling config.set_bars_per_day({detected}) so moving-average/52-week "
             f"windows are the right length (was {config.BARS_PER_DAY}). If this guess is wrong for "
             "your data, call config.set_bars_per_day(...) yourself before running the pipeline."
@@ -91,6 +97,7 @@ def main() -> None:
             f"{t:6s} ({role:6s}) bull_signals={int(df['bull_signal'].sum()):3d}  "
             f"bear_signals={int(df['bear_signal'].sum()):3d}"
         )
+        data_store.log_signals(t, df)  # persist to data/market.duckdb's `signals` table
 
     print("\n=== Signal dates (first 5 of each type per ticker) ===")
     for t, df in signaled.items():
@@ -106,6 +113,18 @@ def main() -> None:
     results = {t: backtest.evaluate_signals(df, horizon=horizon) for t, df in signaled.items()}
     summary = backtest.summarize_universe(results, roles)
     print(summary.to_string(index=False) if not summary.empty else "(no signals to evaluate)")
+
+    print("\n=== Calibrated confidence by score bucket (still thin with just 15 tickers — ")
+    print("    treat as a first look, not a trustworthy calibration; see recommend.py) ===")
+    all_results = pd.concat([r for r in results.values() if not r.empty], ignore_index=True) if any(len(r) for r in results.values()) else pd.DataFrame()
+    calibration = backtest.calibrate_confidence(all_results) if not all_results.empty else pd.DataFrame()
+    print(calibration.to_string(index=False) if not calibration.empty else "(not enough signals to calibrate)")
+
+    print("\n=== Most recent recommendation per ticker (Action / Score / Confidence / Reasoning) ===")
+    for t, df in signaled.items():
+        latest = df.iloc[-1]
+        rec = recommend.recommend(latest, ticker=t, calibration_table=calibration)
+        print(rec)
 
 
 if __name__ == "__main__":

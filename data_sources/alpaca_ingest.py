@@ -19,16 +19,18 @@ Setup (one time):
 Run:
     python3 alpaca_ingest.py
 
-Output:
-    Writes one CSV per ticker to ./data/<TICKER>.csv with columns
-    [timestamp, open, high, low, close, volume] — the exact schema
-    features.compute_features() expects. Also writes ./data/SPY.csv for
-    the benchmark.
+Output (see data_store.py for the storage design — Parquet + DuckDB, not
+a growing pile of loose CSVs):
+    - ./data/raw/<TICKER>.parquet   — one landing-zone Parquet file per
+      ticker, exactly as ingested (kept for reproducibility/debugging).
+    - ./data/market.duckdb          — the queryable store: a `bars` table
+      with every ticker's OHLCV, upserted so re-running this script is
+      always safe.
 
 Then bring the ./data/ folder back into your Claude session (attach the
 files, or use the connected-folder bridge once available) so the actual
 backtest (backtest.py / demo.py's pattern, applied to real data instead of
-synthetic_data.py) can run against it.
+synthetic_data.py) can run against it via data_store.load_bars(ticker).
 """
 from __future__ import annotations
 
@@ -38,9 +40,11 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-# Make config.py (one directory up) importable when run from data_sources/.
+# Make config.py / data_store.py (one directory up) importable when run
+# from inside data_sources/.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config  # noqa: E402
+import data_store  # noqa: E402
 
 try:
     from alpaca.data.historical import StockHistoricalDataClient
@@ -94,8 +98,8 @@ def main() -> None:
     end = datetime.now(timezone.utc)
     start = end - timedelta(days=int(365 * YEARS_OF_HISTORY))
 
-    out_dir = Path(__file__).resolve().parent.parent / "data"
-    out_dir.mkdir(exist_ok=True)
+    # Hourly bars -> config.py's windows need to be scaled accordingly.
+    config.set_bars_per_day(7)
 
     tickers = list(config.VALIDATION_UNIVERSE.keys()) + [config.BENCHMARK]
     for ticker in tickers:
@@ -108,11 +112,12 @@ def main() -> None:
         if df is None:
             print("no data returned")
             continue
-        df.to_csv(out_dir / f"{ticker}.csv", index=False)
-        print(f"{len(df)} bars -> data/{ticker}.csv")
+        data_store.write_raw_parquet(ticker, df)
+        n_stored = data_store.upsert_bars(ticker, df)
+        print(f"{len(df)} bars fetched -> data/raw/{ticker}.parquet, {n_stored} total rows in market.duckdb")
         time.sleep(0.3)  # stay well under the free tier's 200 req/min limit
 
-    print("\nDone. Bring the data/ folder back to your Claude session to run the real backtest.")
+    print(f"\nDone. Bring {data_store.DATA_DIR} back to your Claude session to run the real backtest.")
 
 
 if __name__ == "__main__":

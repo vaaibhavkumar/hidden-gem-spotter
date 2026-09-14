@@ -17,6 +17,7 @@ import pandas as pd
 import backtest
 import config
 import features
+import recommend
 import scoring
 import synthetic_data as synth
 
@@ -65,6 +66,21 @@ def main() -> None:
     results = {t: backtest.evaluate_signals(df, horizon=60) for t, df in signaled.items()}
     summary = backtest.summarize_universe(results, roles)
     print(summary.to_string(index=False) if not summary.empty else "(no signals to evaluate)")
+
+    print("\n=== Calibrated confidence (Wilson CI on THIS run's own signals — illustrative only; ")
+    print("    3 synthetic tickers is nowhere near enough to calibrate for real, see recommend.py docstring) ===")
+    all_results = pd.concat(results.values(), ignore_index=True) if any(len(r) for r in results.values()) else pd.DataFrame()
+    calibration = backtest.calibrate_confidence(all_results) if not all_results.empty else pd.DataFrame()
+    print(calibration.to_string(index=False) if not calibration.empty else "(not enough signals to calibrate)")
+
+    print("\n=== Example recommendation output (Action / Score / Confidence / Reasoning) ===")
+    for t, df in signaled.items():
+        fired = df[df["bull_signal"] | df["bear_signal"]]
+        if fired.empty:
+            continue
+        row = fired.iloc[0]
+        rec = recommend.recommend(row, ticker=t, calibration_table=calibration)
+        print(rec)
 
 
 if __name__ == "__main__":
