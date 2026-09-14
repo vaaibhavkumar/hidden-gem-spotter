@@ -34,10 +34,38 @@ def load_ticker(ticker: str) -> pd.DataFrame:
     return df.sort_values("timestamp").reset_index(drop=True)
 
 
+def detect_bars_per_day(df: pd.DataFrame) -> int:
+    """
+    Infers whether this CSV holds daily or (regular-session) hourly bars
+    from the median gap between consecutive timestamps, and returns the
+    BARS_PER_DAY value config.py's window sizes should use. This exists so
+    a daily-vs-hourly mismatch (see config.py's BARS_PER_DAY comment)
+    can't silently produce a 7x-too-short "50-day" moving average —
+    it's detected and applied automatically instead.
+    """
+    deltas = df["timestamp"].diff().dropna()
+    if deltas.empty:
+        return config.BARS_PER_DAY
+    median_hours = deltas.median().total_seconds() / 3600
+    if median_hours >= 20:   # ~1 trading day between bars (weekends inflate the mean, not the median)
+        return 1
+    return 7                 # hourly bars, ~7 per regular trading session
+
+
 def main() -> None:
     pd.set_option("display.width", 120)
 
     benchmark = load_ticker(config.BENCHMARK)
+
+    detected = detect_bars_per_day(benchmark)
+    if detected != config.BARS_PER_DAY:
+        print(
+            f"Detected {'daily' if detected == 1 else 'hourly'} bars from data/{config.BENCHMARK}.csv "
+            f"timestamps — calling config.set_bars_per_day({detected}) so moving-average/52-week "
+            f"windows are the right length (was {config.BARS_PER_DAY}). If this guess is wrong for "
+            "your data, call config.set_bars_per_day(...) yourself before running the pipeline."
+        )
+        config.set_bars_per_day(detected)
 
     series = {t: load_ticker(t) for t in config.VALIDATION_UNIVERSE}
     roles = {t: meta["role"] for t, meta in config.VALIDATION_UNIVERSE.items()}
@@ -74,7 +102,7 @@ def main() -> None:
             print(f"{t} SELL signals:\n{bears.to_string(index=False)}")
 
     print("\n=== Backtest summary by role (this is the false-positive-rate check) ===")
-    horizon = 24 * 5  # ~5 trading days ahead, in hourly bars — adjust to taste
+    horizon = 5 * config.BARS_PER_DAY  # ~5 trading days ahead, in whatever bar size the data uses
     results = {t: backtest.evaluate_signals(df, horizon=horizon) for t, df in signaled.items()}
     summary = backtest.summarize_universe(results, roles)
     print(summary.to_string(index=False) if not summary.empty else "(no signals to evaluate)")

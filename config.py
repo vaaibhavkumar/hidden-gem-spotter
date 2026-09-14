@@ -33,18 +33,44 @@ VALIDATION_UNIVERSE = {
 
 BENCHMARK = "SPY"
 
-# --- Feature windows (in bars; use trading DAYS for a daily pipeline, or scale up
-# by ~7x for hourly-during-market-hours bars, per the proposal's 3.1 data layer) ---
-SMA_SHORT = 50
-SMA_MID = 150
-SMA_LONG = 200
-LOOKBACK_52W = 252          # ~1 trading year of daily bars
-VOL_WINDOW = 20             # realized-volatility window
-VOL_BASELINE_WINDOW = 60    # baseline to compare current volatility against (contraction score)
-VOLUME_WINDOW = 20          # trailing average volume window for the volume z-score
-ROC_SHORT = 20
-ROC_LONG = 60
-RS_WINDOWS = (63, 126, 252)  # ~3m, 6m, 12m in trading days
+# --- Bar frequency ---
+# alpaca_ingest.py currently pulls HOURLY bars (matching the original "track
+# hourly" goal), but every window below is defined in TRADING DAYS and then
+# scaled by BARS_PER_DAY — so the same config.py works whether data/*.csv
+# holds daily or hourly bars. Just set this to match what you actually
+# fetched before running run_real_backtest.py:
+#   daily bars  -> BARS_PER_DAY = 1
+#   hourly bars -> BARS_PER_DAY = 7   (~6.5 regular-hours trading day rounds
+#                                       up to 7 hourly bars with Alpaca's
+#                                       hour-aligned aggregation)
+# Getting this wrong doesn't error out — it silently makes "50-day" mean 50
+# *bars*, i.e. ~7 trading days on hourly data — a 7x-too-short moving
+# average that will over-fire signals. Always double check this matches
+# your data before trusting results.
+def set_bars_per_day(n: int) -> None:
+    """
+    Sets BARS_PER_DAY and recomputes every window constant below from it.
+    Call this (instead of assigning config.BARS_PER_DAY directly) whenever
+    you switch between daily and hourly data — e.g. run_real_backtest.py
+    calls it automatically after detecting the cadence from your CSVs.
+    """
+    global BARS_PER_DAY, SMA_SHORT, SMA_MID, SMA_LONG, LOOKBACK_52W
+    global VOL_WINDOW, VOL_BASELINE_WINDOW, VOLUME_WINDOW, ROC_SHORT, ROC_LONG, RS_WINDOWS
+
+    BARS_PER_DAY = n
+    SMA_SHORT = 50 * n
+    SMA_MID = 150 * n
+    SMA_LONG = 200 * n
+    LOOKBACK_52W = 252 * n          # ~1 trading year
+    VOL_WINDOW = 20 * n             # realized-volatility window
+    VOL_BASELINE_WINDOW = 60 * n    # baseline to compare current volatility against (contraction score)
+    VOLUME_WINDOW = 20 * n          # trailing average volume window for the volume z-score
+    ROC_SHORT = 20 * n
+    ROC_LONG = 60 * n
+    RS_WINDOWS = tuple(d * n for d in (63, 126, 252))  # ~3m, 6m, 12m
+
+
+set_bars_per_day(1)  # default: daily bars. Call set_bars_per_day(7) for hourly data.
 
 # --- Composite scoring thresholds (section 2E/2F/3.4 of the proposal) ---
 # These are starting points for the checklist version — tune during backtesting (3.5).
