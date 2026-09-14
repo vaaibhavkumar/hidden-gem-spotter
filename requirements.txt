@@ -1,0 +1,17 @@
+# Core pipeline (config.py, signals/, evaluation/, recommendation/, demo.py).
+pandas>=2.0
+numpy>=1.24
+
+# Storage layer (ingestion/data_store.py) — pyarrow is required for
+# df.to_parquet()/pd.read_parquet(); without it, write_raw_parquet() fails
+# with "Unable to find a usable engine" even though duckdb itself works.
+duckdb>=1.0
+pyarrow>=15.0
+
+# Real data ingestion (ingestion/alpaca_ingest.py) — only needed on the
+# machine that actually pulls from Alpaca, not to run demo.py's synthetic
+# smoke test.
+alpaca-py>=0.30
+
+# Testing (tests/).
+pytest>=8.0

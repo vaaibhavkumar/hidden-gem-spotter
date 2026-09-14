@@ -1,12 +1,13 @@
 """
 Same pipeline as demo.py, but reading real OHLCV data (produced by
-data_sources/alpaca_ingest.py) instead of synthetic series.
+ingestion/alpaca_ingest.py) instead of synthetic series.
 
 Run: python3 run_real_backtest.py
 
-Reads from data/market.duckdb (see data_store.py) if present — this is
-the path alpaca_ingest.py now writes to. Falls back to data/<TICKER>.csv
-for backward compatibility with the very first prototype run.
+Reads from data/market.duckdb (see ingestion/data_store.py) if present —
+this is the path alpaca_ingest.py now writes to. Falls back to
+data/<TICKER>.csv for backward compatibility with the very first
+prototype run.
 """
 from __future__ import annotations
 
@@ -14,12 +15,11 @@ from pathlib import Path
 
 import pandas as pd
 
-import backtest
 import config
-import data_store
-import features
-import recommend
-import scoring
+from evaluation import backtest
+from ingestion import data_store
+from recommendation import recommend
+from signals import features, scoring
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -35,8 +35,8 @@ def load_ticker(ticker: str) -> pd.DataFrame:
 
     raise FileNotFoundError(
         f"No data for {ticker} in {data_store.DB_PATH} or {csv_path} — run "
-        "data_sources/alpaca_ingest.py (on a machine with internet access) "
-        "and bring its data/ folder here first."
+        "python3 -m ingestion.alpaca_ingest (on a machine with internet "
+        "access) and bring its data/ folder here first."
     )
 
 

@@ -14,12 +14,11 @@ from __future__ import annotations
 
 import pandas as pd
 
-import backtest
 import config
-import features
-import recommend
-import scoring
 import synthetic_data as synth
+from evaluation import backtest
+from recommendation import recommend
+from signals import features, scoring
 
 
 def main() -> None:
