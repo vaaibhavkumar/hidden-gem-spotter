@@ -18,7 +18,7 @@ import pandas as pd
 import config
 from evaluation import backtest
 from ingestion import data_store
-from recommendation import recommend
+from recommendation import html_report, recommend
 from signals import features, scoring
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -136,12 +136,17 @@ def main() -> None:
     print(calibration.to_string(index=False) if not calibration.empty else "(not enough signals to calibrate)")
 
     print("\n=== Most recent recommendation per validation ticker (Action / Score / Confidence / Reasoning) ===")
+    recommendations = []
     for t, df in signaled.items():
         if t not in roles:
             continue
         latest = df.iloc[-1]
         rec = recommend.recommend(latest, ticker=t, calibration_table=calibration)
         print(rec)
+        recommendations.append(rec)
+
+    report_path = html_report.generate_html_report(recommendations, roles, out_path="report.html")
+    print(f"\nWrote {report_path} -- open it in a browser to see the watchlist summary + per-ticker detail.")
 
 
 if __name__ == "__main__":

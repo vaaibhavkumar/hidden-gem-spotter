@@ -55,14 +55,25 @@ except ImportError:
     print("Missing dependency. Run: pip install alpaca-py", file=sys.stderr)
     raise
 
-# Pull extra history beyond the 3-year analysis window so the technical
+# Pull extra history beyond the usable analysis window so the technical
 # features (trend template, 52-week high/low, RS windows) have a full
-# burn-in period before the window you actually care about starts — the
+# burn-in period before the window you actually care about starts -- the
 # prototype backtest on synthetic data showed the first ~1.8 years of any
 # series are unusable "warm-up" for 200-period moving averages plus a
-# 252-bar 52-week lookback. 4.5 years of raw history gives a clean 3-year
-# analysis window after burn-in.
-YEARS_OF_HISTORY = 4.5
+# 252-bar 52-week lookback (LOOKBACK_52W + SMA_LONG = 452 trading days ~=
+# 1.8 years). 8.8 years of raw history gives a clean ~7-year analysis
+# window after burn-in -- worth more than just "more data": it spans
+# several distinct market regimes (2018 rate hikes, 2020 COVID crash,
+# 2021 recovery, 2022 rate hikes, 2023-2025 AI rally) instead of the
+# whole backtest living inside one continuous bull run, which is a
+# different, complementary fix to CALIBRATION_UNIVERSE's cross-sectional
+# breadth (config.py) -- that widens *how many* names you check per day,
+# this widens *how many distinct market conditions* you've ever checked.
+# IEX (the feed free/paper accounts use) has traded since 2016, so this
+# stays safely within its history. Recent listings (GEV, PLTR) will still
+# only have their real, shorter trading history regardless of this value
+# -- that's correct, not a bug.
+YEARS_OF_HISTORY = 8.8
 
 
 def fetch_ticker(client: StockHistoricalDataClient, ticker: str, start, end):
