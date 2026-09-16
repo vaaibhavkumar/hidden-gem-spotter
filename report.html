@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hidden Gem Spotter — Recommendations</title>
+<style>
+  :root {
+    --bg: #fafafa; --fg: #1a1a1a; --muted: #6b6b6b; --border: #e2e2e2; --card-bg: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 20px 60px; background: var(--bg); color: var(--fg);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .disclaimer {
+    font-size: 12.5px; color: var(--muted); background: #f2f2f2; border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 14px; margin-bottom: 24px;
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  th { background: #f2f2f2; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.reason { color: #333; max-width: 360px; }
+  a { color: #1a4fa0; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .muted { color: var(--muted); font-size: 12.5px; }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 18px; margin: 14px 0; scroll-margin-top: 16px;
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-head h2 { font-size: 16px; margin: 0; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 6px 20px; color: #333; font-size: 13px; margin: 10px 0 8px; }
+  .reasoning { margin: 8px 0 0; padding-left: 20px; font-size: 13.5px; }
+  .reasoning li { margin: 3px 0; }
+  section#detail h1 { margin-top: 40px; }
+  .history-heading { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); margin: 16px 0 6px; }
+  table.history { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.history th, table.history td { padding: 5px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+  table.history td.num { text-align: right; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Hidden Gem Spotter — Recommendations</h1>
+    <div class="subtitle">Generated 2026-09-16 04:24 UTC &middot; 15 tickers &middot; sorted by composite score (most bullish first)</div>
+    <div class="disclaimer">
+      Technical pillar only — fundamental/revision/alternative pillars aren't built yet, so a
+      composite score here reflects price/volume behavior alone, not company fundamentals.
+      Confidence is a backtested Wilson interval where available, otherwise explicitly marked
+      "uncalibrated." This is a personal research prototype, not investment advice.
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Ticker</th><th>Role</th><th>Action</th><th>Score</th><th>Confidence</th><th>Price</th><th>Top reason</th></tr>
+      </thead>
+      <tbody>
+            <tr>
+              <td><a href="#t-v"><strong>V</strong></a></td>
+              <td class="muted">normal</td>
+              <td><span class="badge" style="color:#1e7e42;background:#e3f9ec;">BUY</span></td>
+              <td class="num">76.1</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$375.43</td>
+              <td class="reason">[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</td>
+            </tr>
+            <tr>
+              <td><a href="#t-ko"><strong>KO</strong></a></td>
+              <td class="muted">normal</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">69.7</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$88.69</td>
+              <td class="reason">[Technical/bullish] Trend template intact (price &gt; 50/150/200-period MAs, MAs stacked bullishly, 200 rising)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-intc"><strong>INTC</strong></a></td>
+              <td class="muted">faller</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">69.4</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$97.12</td>
+              <td class="reason">[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</td>
+            </tr>
+            <tr>
+              <td><a href="#t-pg"><strong>PG</strong></a></td>
+              <td class="muted">normal</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">66.5</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$146.64</td>
+              <td class="reason">[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-mrna"><strong>MRNA</strong></a></td>
+              <td class="muted">faller</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">64.5</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$143.74</td>
+              <td class="reason">[Technical/bullish] Trend template intact (price &gt; 50/150/200-period MAs, MAs stacked bullishly, 200 rising)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-pltr"><strong>PLTR</strong></a></td>
+              <td class="muted">riser</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">63.9</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$172.60</td>
+              <td class="reason">[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</td>
+            </tr>
+            <tr>
+              <td><a href="#t-jnj"><strong>JNJ</strong></a></td>
+              <td class="muted">normal</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">63.8</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$267.12</td>
+              <td class="reason">[Technical/bullish] Trend template intact (price &gt; 50/150/200-period MAs, MAs stacked bullishly, 200 rising)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-nvda"><strong>NVDA</strong></a></td>
+              <td class="muted">riser</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">61.6</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$212.16</td>
+              <td class="reason">[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</td>
+            </tr>
+            <tr>
+              <td><a href="#t-ba"><strong>BA</strong></a></td>
+              <td class="muted">faller</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">61.3</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$209.62</td>
+              <td class="reason">[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-vst"><strong>VST</strong></a></td>
+              <td class="muted">riser</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">61.0</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$141.53</td>
+              <td class="reason">[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-gev"><strong>GEV</strong></a></td>
+              <td class="muted">riser</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">60.0</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$882.43</td>
+              <td class="reason">[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-enph"><strong>ENPH</strong></a></td>
+              <td class="muted">faller</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">59.2</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$36.75</td>
+              <td class="reason">[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-el"><strong>EL</strong></a></td>
+              <td class="muted">faller</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">56.5</td>
+              <td>52.1% <span class='muted'>(49.6%–54.6%)</span></td>
+              <td class="num">$96.22</td>
+              <td class="reason">[Technical/bullish] Rate of price change is accelerating</td>
+            </tr>
+            <tr>
+              <td><a href="#t-hd"><strong>HD</strong></a></td>
+              <td class="muted">normal</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">46.3</td>
+              <td>48.2% <span class='muted'>(45.4%–51.0%)</span></td>
+              <td class="num">$305.56</td>
+              <td class="reason">[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</td>
+            </tr>
+            <tr>
+              <td><a href="#t-ceg"><strong>CEG</strong></a></td>
+              <td class="muted">riser</td>
+              <td><span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span></td>
+              <td class="num">43.2</td>
+              <td>48.2% <span class='muted'>(45.4%–51.0%)</span></td>
+              <td class="num">$259.88</td>
+              <td class="reason">[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</td>
+            </tr></tbody>
+    </table>
+
+    <h1 id="detail">Per-ticker detail</h1>
+    
+            <section class="card" id="t-v">
+              <div class="card-head">
+                <h2>V &middot; normal</h2>
+                <span class="badge" style="color:#1e7e42;background:#e3f9ec;">BUY</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 76.1 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $375.43 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</li><li>[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bullish] Rate of price change is accelerating</li><li>[Technical/bearish] Volume confirming the move (&gt;1.0 std above trailing average — a distribution day)</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-ko">
+              <div class="card-head">
+                <h2>KO &middot; normal</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 69.7 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $88.69 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Trend template intact (price &gt; 50/150/200-period MAs, MAs stacked bullishly, 200 rising)</li><li>[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</li><li>[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bearish] Volume confirming the move (&gt;1.0 std above trailing average — a distribution day)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-intc">
+              <div class="card-head">
+                <h2>INTC &middot; faller</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 69.4 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $97.12 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bullish] Rate of price change is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-pg">
+              <div class="card-head">
+                <h2>PG &middot; normal</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 66.5 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $146.64 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bullish] Rate of price change is accelerating</li><li>[Technical/bearish] Volume confirming the move (&gt;1.0 std above trailing average — a distribution day)</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-mrna">
+              <div class="card-head">
+                <h2>MRNA &middot; faller</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 64.5 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $143.74 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Trend template intact (price &gt; 50/150/200-period MAs, MAs stacked bullishly, 200 rising)</li><li>[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-pltr">
+              <div class="card-head">
+                <h2>PLTR &middot; riser</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 63.9 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $172.60 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-jnj">
+              <div class="card-head">
+                <h2>JNJ &middot; normal</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 63.8 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $267.12 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Trend template intact (price &gt; 50/150/200-period MAs, MAs stacked bullishly, 200 rising)</li><li>[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</li><li>[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</li><li>[Technical/bearish] Volume confirming the move (&gt;1.0 std above trailing average — a distribution day)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-nvda">
+              <div class="card-head">
+                <h2>NVDA &middot; riser</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 61.6 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $212.16 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Relative strength vs. benchmark in the top 30% of the universe</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-ba">
+              <div class="card-head">
+                <h2>BA &middot; faller</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 61.3 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $209.62 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-vst">
+              <div class="card-head">
+                <h2>VST &middot; riser</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 61.0 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $141.53 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bullish] Rate of price change is accelerating</li><li>[Technical/bearish] Trend template broken (price &lt; 50/150/200-period MAs, MAs stacked bearishly, 200 falling)</li><li>[Technical/bearish] Relative strength vs. benchmark in the bottom 30% of the universe</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-gev">
+              <div class="card-head">
+                <h2>GEV &middot; riser</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 60.0 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $882.43 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-enph">
+              <div class="card-head">
+                <h2>ENPH &middot; faller</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 59.2 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $36.75 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bullish] Rate of price change is accelerating</li><li>[Technical/bearish] Relative strength vs. benchmark in the bottom 30% of the universe</li><li>[Technical/bearish] Volume confirming the move (&gt;1.0 std above trailing average — a distribution day)</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-el">
+              <div class="card-head">
+                <h2>EL &middot; faller</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 56.5 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 52.1% <span class='muted'>(49.6%–54.6%)</span></span>
+                <span><strong>Price:</strong> $96.22 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Rate of price change is accelerating</li><li>[Technical/bearish] Volatility is expanding into widening swings (distribution-style top)</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-hd">
+              <div class="card-head">
+                <h2>HD &middot; normal</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 46.3 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 48.2% <span class='muted'>(45.4%–51.0%)</span></span>
+                <span><strong>Price:</strong> $305.56 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</li><li>[Technical/bullish] Volatility was contracting before this move (VCP-style setup)</li><li>[Technical/bearish] Trend template broken (price &lt; 50/150/200-period MAs, MAs stacked bearishly, 200 falling)</li><li>[Technical/bearish] Relative strength vs. benchmark in the bottom 30% of the universe</li><li>[Technical/bearish] Volume confirming the move (&gt;1.0 std above trailing average — a distribution day)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+            <section class="card" id="t-ceg">
+              <div class="card-head">
+                <h2>CEG &middot; riser</h2>
+                <span class="badge" style="color:#5a5a5a;background:#eeeeee;">HOLD</span>
+              </div>
+              <div class="card-meta">
+                <span><strong>Score:</strong> 43.2 / 100 (pillars used: technical, revision)</span>
+                <span><strong>Confidence:</strong> 48.2% <span class='muted'>(45.4%–51.0%)</span></span>
+                <span><strong>Price:</strong> $259.88 <span class="muted">as of 2026-09-15 12:00:00</span></span>
+              </div>
+              <ul class="reasoning"><li>[Technical/bullish] Volume confirming the move (&gt;1.0 std above trailing average)</li><li>[Technical/bearish] Trend template broken (price &lt; 50/150/200-period MAs, MAs stacked bearishly, 200 falling)</li><li>[Technical/bearish] Relative strength vs. benchmark in the bottom 30% of the universe</li><li>[Technical/bearish] Volume confirming the move (&gt;1.0 std above trailing average — a distribution day)</li><li>[Technical/bearish] Rate of price decline is accelerating</li><li>[Note] Pillars not yet available: fundamental, alternative — composite is partial.</li></ul>
+              <h3 class="history-heading">Previous recommendations</h3>
+              <p class='muted'>No prior runs logged yet for this ticker -- history will build up as you re-run run_real_backtest.py over time.</p>
+            </section>
+  </div>
+</body>
+</html>

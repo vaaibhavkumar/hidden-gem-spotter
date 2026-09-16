@@ -13,5 +13,10 @@ pyarrow>=15.0
 # smoke test.
 alpaca-py>=0.30
 
+# Analyst-consensus ingestion (ingestion/finnhub_ingest.py) — feeds
+# recommendation/recommend.py's "revision" pillar. Same "only needed on
+# the machine that actually pulls live data" caveat as alpaca-py above.
+requests>=2.31
+
 # Testing (tests/).
 pytest>=8.0

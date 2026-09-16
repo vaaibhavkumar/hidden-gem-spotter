@@ -97,6 +97,21 @@ def test_recommend_renormalizes_weights_across_supplied_pillars():
     assert "fundamental" not in missing_note.split(":")[1]
 
 
+def test_recommend_with_revision_score_folds_it_into_composite():
+    row = _neutral_row()  # technical score fixed at 50
+    rec = recommend.recommend(row, ticker="TEST", revision_score=90.0)
+
+    w_tech = recommend.PILLAR_WEIGHTS["technical"]
+    w_rev = recommend.PILLAR_WEIGHTS["revision"]
+    expected = 50.0 * (w_tech / (w_tech + w_rev)) + 90.0 * (w_rev / (w_tech + w_rev))
+
+    assert set(rec.pillars_used) == {"technical", "revision"}
+    assert rec.composite_score == pytest.approx(expected)
+    missing_note = [r for r in rec.reasoning if "Pillars not yet available" in r][0]
+    assert "fundamental" in missing_note and "alternative" in missing_note
+    assert "revision" not in missing_note.split(":")[1]
+
+
 def test_recommend_without_calibration_table_reports_uncalibrated():
     row = _bullish_row()
     rec = recommend.recommend(row, ticker="TEST")
